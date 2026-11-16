@@ -6,7 +6,7 @@ function path_gui
 	% Axes where the map and paths are drawn
 	h_axes = axes("Parent", fig ,"Units","pixels","Position" ,[250 ,100 ,600 ,450]) ;
 	uicontrol("Style", "pushbutton", "Position", [20, 520, 120, 30], "String", "Calculate Path", "Callback", @(s , e) calculate_path(h_axes));
-	uicontrol("Style", "pushbutton", "Position", [20, 480, 120, 30], "String", "Step", "Callback", @(s , e) step());
+	uicontrol("Style", "pushbutton", "Position", [20, 480, 120, 30], "String", "Step", "Callback", @(s , e) step(h_axes));
 	uicontrol("Style", "pushbutton", "Position", [20, 440, 120, 30], "String", "Add Obstacle", "Callback", @(s , e) update_grid());
 	
 	setappdata(h_axes, "start", [15 2]);
@@ -82,9 +82,6 @@ function draw_course(h_axes)
 		quiver(arrow_starts(:, 2), arrow_starts(:, 1), ...
 			0.3 * directions(:, 2), 0.3 * directions(:, 1), 0, ...
 			'Color', 'r', 'LineWidth', 1.2, 'MaxHeadSize', 1);
-		fprintf("Drew arrows\n");
-    else
-        fprintf("Did not draw arrows\n");
     end
 	plot(agent(2), agent(1), 'o', 'Color', [0.8, 0.2, 1], ...
 		'MarkerFaceColor', [0.8, 0.2, 1], 'MarkerSize', 6);
@@ -105,8 +102,24 @@ function calculate_path(h_axes)
 	draw_course(h_axes);
 end
 
-function step()
+function step(h_axes)
+	agent = getappdata(h_axes, "agent");
+	steps = getappdata(h_axes, "steps");
 
+	index = -1;
+	for i=1:size(steps, 1)
+		if steps(i, 1) == agent(1) && steps(i, 2) == agent(2)
+			index = i;
+			break;
+		end
+	end
+
+	if index > 0 && index < size(steps, 1)
+		agent(:) = steps(index + 1, :);
+		setappdata(h_axes, "agent", agent);
+	end
+	
+	draw_course(h_axes);
 end
 
 function update_grid()
