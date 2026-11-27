@@ -1,4 +1,4 @@
-
+% calculate the shortest path using the grid
 function steps = trace_distance_grid(distance_grid, goal)
 	assert(ismatrix(distance_grid));
 	assert(isvector(goal) && numel(goal) == 2);
