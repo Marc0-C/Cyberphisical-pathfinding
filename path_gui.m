@@ -7,7 +7,7 @@ function path_gui
 	h_axes = axes("Parent", fig ,"Units","pixels","Position" ,[250 ,100 ,600 ,450]) ;
 	uicontrol("Style", "pushbutton", "Position", [20, 520, 120, 30], "String", "Calculate Path", "Callback", @(s , e) calculate_path(h_axes));
 	uicontrol("Style", "pushbutton", "Position", [20, 480, 120, 30], "String", "Step", "Callback", @(s , e) step(h_axes));
-	uicontrol("Style", "pushbutton", "Position", [20, 440, 120, 30], "String", "Add Obstacle", "Callback", @(s , e) update_grid());
+	uicontrol("Style", "pushbutton", "Position", [20, 440, 120, 30], "String", "Add Obstacle", "Callback", @(s , e) update_grid(h_axes));
 	
 	setappdata(h_axes, "start", [15 2]);
 	setappdata(h_axes, "goal", [15 15]);
@@ -15,7 +15,9 @@ function path_gui
 	setappdata(h_axes, "course", course_initial);
 	setappdata(h_axes, "distance_grid", inf(16));
 	setappdata(h_axes, "steps", []);
-	
+  setappdata(h_axes, "courses", {course_initial, course_obstacle_1, course_obstacle_2, course_obstacle_3});
+	setappdata(h_axes, "course_idx", 1);
+  
 	draw_course(h_axes);
 	
 	% Inputs for grid size and obstacle density
@@ -102,6 +104,23 @@ function calculate_path(h_axes)
 	draw_course(h_axes);
 end
 
+function update_grid(h_axes)
+	courses = getappdata(h_axes, "courses");
+	idx = getappdata(h_axes, "course_idx");
+	
+	% cycle course
+	idx = mod(idx, numel(courses)) + 1;
+	new_course = courses{idx};
+	
+	% save grid and index
+	setappdata(h_axes, "course", new_course);
+	setappdata(h_axes, "course_idx", idx);
+	
+	% reset distance_grid 
+	setappdata(h_axes, "distance_grid", inf(size(new_course)));
+	
+	draw_course(h_axes);
+end
 function step(h_axes)
 	agent = getappdata(h_axes, "agent");
 	steps = getappdata(h_axes, "steps");
@@ -122,6 +141,3 @@ function step(h_axes)
 	draw_course(h_axes);
 end
 
-function update_grid()
-	
-end

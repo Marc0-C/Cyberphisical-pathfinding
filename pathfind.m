@@ -1,4 +1,4 @@
-
+% calculat eht egrid with all of the distances
 function distance_grid = pathfind(course, start, goal)
 	assert(ismatrix(course));
     assert(isvector(start) && numel(start) == 2);
