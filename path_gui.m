@@ -7,7 +7,7 @@ function path_gui
 	h_axes = axes("Parent", fig ,"Units","pixels","Position" ,[250 ,100 ,600 ,450]) ;
 	uicontrol("Style", "pushbutton", "Position", [20, 520, 120, 30], "String", "Calculate Path", "Callback", @(s , e) calculate_path(h_axes));
 	uicontrol("Style", "pushbutton", "Position", [20, 480, 120, 30], "String", "Step", "Callback", @(s , e) step(h_axes));
-	uicontrol("Style", "pushbutton", "Position", [20, 440, 120, 30], "String", "Add Obstacle", "Callback", @(s , e) update_grid());
+	uicontrol("Style", "pushbutton", "Position", [20, 440, 120, 30], "String", "Add Obstacle", "Callback", @(s , e) update_grid(h_axes));
 	
 	setappdata(h_axes, "start", [15 2]);
 	setappdata(h_axes, "goal", [15 15]);
@@ -82,7 +82,7 @@ function draw_course(h_axes)
 		quiver(arrow_starts(:, 2), arrow_starts(:, 1), ...
 			0.3 * directions(:, 2), 0.3 * directions(:, 1), 0, ...
 			'Color', 'r', 'LineWidth', 1.2, 'MaxHeadSize', 1);
-    end
+	end
 	plot(agent(2), agent(1), 'o', 'Color', [0.8, 0.2, 1], ...
 		'MarkerFaceColor', [0.8, 0.2, 1], 'MarkerSize', 6);
 	hold off;
@@ -122,6 +122,53 @@ function step(h_axes)
 	draw_course(h_axes);
 end
 
-function update_grid()
-	
+function update_grid(h_axes)
+	course;
+
+	start = getappdata(h_axes, "start");
+	goal = getappdata(h_axes, "goal");
+	agent = getappdata(h_axes, "agent");
+	course_ = getappdata(h_axes, "course");
+	distance_grid = getappdata(h_axes, "distance_grid");
+	steps = getappdata(h_axes, "steps");
+
+	% Add obstacle.
+	course_id = randi(3);
+	if course_id == 1
+		course_ = course_obstacle_1;
+	elseif course_id == 2
+		course_ = course_obstacle_2;
+	else
+		course_ = course_obstacle_3;
+	end
+
+	% Get current location in path.
+	index = -1;
+	for i=1:size(steps, 1)
+		if steps(i, 1) == agent(1) && steps(i, 2) == agent(2)
+			index = i;
+			break;
+		end
+	end
+	if index > 0
+		% Check if the route is still valid.
+		valid = true;
+		for i=index:(length(steps))
+			if course_(steps(i, 1), steps(i, 2)) == 1
+				valid = false;
+				break;
+			end
+		end
+		if ~valid
+			fprintf("Route invalidated, recalculating.");
+			distance_grid = pathfind(course_, start, goal);
+			steps = trace_distance_grid(distance_grid, goal);
+		end
+	end
+
+	setappdata(h_axes, "course", course_);
+	setappdata(h_axes, "distance_grid", distance_grid);
+	setappdata(h_axes, "steps", steps);
+
+	draw_course(h_axes);
 end
