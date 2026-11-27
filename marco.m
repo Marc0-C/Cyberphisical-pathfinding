@@ -1,0 +1,49 @@
+% flags, each time they are 1 do the action then return to 0
+calculate = 0;  % if 1 run pathfind and trace distance
+step = 0;       % if 1, move the current postion in the display one step down shortest path
+update_course = 0;     % if 1, move current course up by 1
+calculated = 0; % 1 if the path has been calculated atleast once
+
+start = [15 2]; destination = [15 15]; step_index = 0; step_locaiton = start;
+
+courses = zeros(16, 16, 4);
+courses(:,:,1) = course_initial; courses(:,:,2) = course_obstacle_1;
+courses(:,:,3) = course_obstacle_2; courses(:,:,4) = course_obstacle_3;
+current_course = 1;
+
+all_distances = pathfind(courses(:,:, current_course), start, destination);
+shortest_path = trace_distance_grid(all_distances, destination);
+
+function button_pressed(calculate, step, update_course) % binary flags depending on which button has been pressed
+
+    if update_course == 1
+        current_course = mod(current_course, size(courses, 3)) + 1;
+        update_course = 0;
+        % display course on top
+    end
+
+    if calculate == 1 && calculated == 0
+        first_distances = pathfind(courses(:,:, current_course), step_locaiton, destination);
+        % calculate gird of distances for curretn postiion and course
+        first_shortest_path = trace_distance_grid(first_distances, destination);
+        % plot shortest path on current course
+        calculate = 0;
+        calculated = 1;
+    elseif calculated == 1
+        distances = pathfind(courses(:,:, current_course), step_locaiton, destination);
+        path = trace_distance_grid(distances, destination);
+        %plot new path
+        difference_path = % part where path != first_shortest_path
+        % plot in red
+        first_distances = distances;
+        first_shortest_path = path;
+        calculate = 0;
+    end
+
+    if step == 1
+        step_index = mod(step_index, size(first_shortest_path)) + 1;
+        step_location = first_shortest_path(current_step);
+        % display step_locaiton
+        step = 0;
+    end
+end

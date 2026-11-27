@@ -15,7 +15,9 @@ function path_gui
 	setappdata(h_axes, "course", course_initial);
 	setappdata(h_axes, "distance_grid", inf(16));
 	setappdata(h_axes, "steps", []);
-	
+  setappdata(h_axes, "courses", {course_initial, course_obstacle_1, course_obstacle_2, course_obstacle_3});
+	setappdata(h_axes, "course_idx", 1);
+  
 	draw_course(h_axes);
 	
 	% Inputs for grid size and obstacle density
