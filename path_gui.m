@@ -91,11 +91,11 @@ function draw_course(h_axes)
 end
 
 function calculate_path(h_axes)
-    start = getappdata(h_axes, "start");
 	goal = getappdata(h_axes, "goal");
 	course = getappdata(h_axes, "course");
+	agent = getappdata(h_axes, "agent");
 
-	distance_grid = pathfind(course, start, goal);
+	distance_grid = pathfind(course, agent, goal);
 	steps = trace_distance_grid(distance_grid, goal);
 
 	setappdata(h_axes, "distance_grid", distance_grid);
@@ -163,7 +163,7 @@ function update_grid(h_axes)
 		end
 		if ~valid
 			fprintf("Route invalidated, recalculating.");
-			distance_grid = pathfind(course_, start, goal);
+			distance_grid = pathfind(course_, agent, goal);
 			steps = trace_distance_grid(distance_grid, goal);
 		end
 	end
